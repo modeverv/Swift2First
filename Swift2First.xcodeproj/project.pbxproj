@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		17D3527D1BC9265C00865967 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D3527C1BC9265C00865967 /* main.swift */; };
+		17E8ADEF1BD53AA5001BFB84 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 17E8ADEE1BD53AA5001BFB84 /* README.md */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		17D352791BC9265C00865967 /* Swift2First */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Swift2First; sourceTree = BUILT_PRODUCTS_DIR; };
 		17D3527C1BC9265C00865967 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		17E8ADEE1BD53AA5001BFB84 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +43,7 @@
 		17D352701BC9265C00865967 = {
 			isa = PBXGroup;
 			children = (
+				17E8ADEE1BD53AA5001BFB84 /* README.md */,
 				17D3527B1BC9265C00865967 /* Swift2First */,
 				17D3527A1BC9265C00865967 /* Products */,
 			);
@@ -118,6 +121,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17E8ADEF1BD53AA5001BFB84 /* README.md in Sources */,
 				17D3527D1BC9265C00865967 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -236,6 +240,7 @@
 				17D352821BC9265C00865967 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
