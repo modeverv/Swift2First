@@ -10,6 +10,443 @@ do {
     let name = "Ste"
     var age = 56
     var age2 : Int = 32
+    print("\(age) \(name)")
+    var phone :Optional<String> = nil
+    var phone2:String? = nil
+
+    // Optional - Optional binding
+    phone = "aaa"
+    if phone != nil {
+        print(phone)
+    }
+    if let p = phone {
+        print(p)
+    }
+    // Optional Chaining nilはBoolのfalseじゃないの。
+    // ?? 演算子
+    if phone?.hasPrefix("a") ?? false {
+        print(phone)
+    }
+}
+
+do {
+    // Tuple
+    let ste = ("Ste",56)
+    let (name,age) = ste
+    print(ste.0)
+
+    let steeve = (name:"Steeve",age:56)
+    print(steeve.name)
+}
+
+do {
+    // Array
+    let fishes = ["aaa","bbbb"]
+    print(fishes[0]);//xcode 補完ちょっとバカ
+    for fish in fishes {
+        print(fish)
+    }
+    var dogs:[String] = []
+    dogs.append("aaa");
+
+}
+
+do {
+    // Set
+    let fishes : Set<String> = ["aaa","bbbb"]
+    if fishes.contains("aaa") {
+        print("contain")
+    }
+}
+
+do {
+    // Dictionary
+    // sizeOfFishes["Mackerel"] のようにキーを用いてアクセスできる。このとき返ってくるのは Int? 型であり、キーが存在しない場合の値は nil である。
+    var size_ : [ String : String ] = [:]
+    size_["hoge"] = "fuga"
+    size_["hogehoge"] = "fuga"
+    if let n = size_["hoge"] {
+        print(n)
+    }
+    // Optional - binding
+    if let n = size_["hoge2"] {
+        print(n)
+    }else{
+        print("not contain")
+    }
+    for key in size_.keys {
+        print(size_[key])
+        // => Optional - binding必要
+    }
+    // tupleで取り出すのがよいのか。
+    for (key,value) in size_ {
+        print("\(key) - \(value)")
+    }
+}
+
+do {
+    // Where
+    for i in 0..<3 where i % 2 == 0 {
+        print(i)
+    }
+}
+
+do {
+    let numbers: [Int?] = [0, nil, 3, 4, nil]
+    // ?でnilの時は何もおきない
+    for case let i? in numbers {
+        print(i)
+    }
+}
+
+do {
+    let number = 1
+    // これちょっと気持ち悪いな。
+    if case 0..<3 = number {
+        print(number)
+    }
+
+    // なぜ ifだけでややこしい
+    let condition = true
+    let aNumber: Int? = 3
+    let anotherNumber: Int? = 7
+    // Optional bindingしているの？
+    if condition, let a = aNumber, let b = anotherNumber where a < b {
+        print(a + b)
+    }
+    if let a = aNumber, let b = anotherNumber where a < b {
+        print(a + b)
+    }
+    if true,let a = aNumber, let b = anotherNumber where a < b {
+        print(a + b)
+    }
+}
+
+do {
+    // Functions 
+    // 呼び出し時には引数にラベルをつける。ただし第一引数にはラベルをつけない
+    func multiply(number first: Int, by second: Int) -> Int {
+        return first * second
+    }
+    print(multiply(number: 3, by: 5))
+}
+
+do {
+    // var
+    func increment(var number: Int) -> Int {
+        return ++number
+    }
+    increment(6)
+}
+
+do {
+    // inout -> Intいらない -> Voidで明示的に
+    func increment(inout number: Int) -> Void {
+        ++number
+    }
+    var number = 7
+    // 参照渡し Cっぽい
+    increment(&number) // => 8
+}
+
+do {
+    // Default value
+    func refrain(string: String, count: UInt=1) -> String {
+        var result: [String] = []
+        for i in 0..<count {
+            result.append(i == 0 ? string : string.lowercaseString)
+        }
+        return result.joinWithSeparator(", ")
+    }
+
+    refrain("Let it be", count: 3)
+    
+    refrain("Love")
+}
+
+do {
+    // 可変長引数
+    // 型名に続いて ... と書くと可変長の引数を受けられるようになる。実装中においては Array として取り扱うことができる。
+    func sum(numbers: Int...) -> Int {
+        return numbers.reduce(0, combine: +)
+    }
+    sum(1, 4, 7)
+}
+
+do {
+    // 関数はファーストクラス
+    func multiply(number first: Int, by second: Int) -> Int {
+        return first * second
+    }
+
+    var calculation: (Int, Int) -> Int
+
+    calculation = multiply
+    // ()でcall
+    let twentyOne = calculation(3, 7)
+}
+
+do {
+    // 高階関数
+    func multiply(number: Int, by: Int) -> Int { return number * by }
+    func add(number: Int, to: Int) -> Int { return number + to }
+
+    func calculation(kind: String) -> (Int, Int) -> Int {
+        switch kind {
+        case "add":
+            return add
+        case "multiply":
+            return multiply
+        default:
+            fatalError("Unsupported")
+        }
+    }
+    
+    calculation("add")(1, 4)
+}
+
+do {
+    // 関数のネスト
+    func calculation(kind: String) -> (Int, Int) -> Int {
+        func multiply(number: Int, by: Int) -> Int { return number * by }
+        func add(number: Int, to: Int) -> Int { return number + to }
+
+        switch kind {
+        case "add":
+            return add
+        case "multiply":
+            return multiply
+        default:
+            fatalError("Unsupported")
+        }
+    }
+    
+    calculation("add")(1, 4)
+}
+
+do {
+    // guard
+    let contact = [ "name" : "Steve Jobs", "mail" : "steve@apple.com" ]
+
+    func recipient(contact: [String: String]) -> String? {
+        guard let name = contact["name"], let mail = contact["mail"] else {
+            return nil
+        }
+        // スコープname,mailはここまでスコープ来る
+        return "\(name) <\(mail)>"
+    }
+}
+
+do {
+    // CLosures
+    func doubling(number: Int) -> Int {
+        return 2 * number
+    }
+
+    let values = [0, 1, 2, 3, 4, 5]
+    // mapは非破壊的　変数で受け取らないとだめっぽ
+    var v = values.map(doubling)
+    // ＝＞が　クロージャで
+    var v2 = values.map({ (number: Int) -> Int in
+        return 2 * number
+    })
+    // 省略クロージャ達
+    var v3 = values.map({ number in 2 * number })
+    var v4 = values.map({ 2 * $0 })
+    var v5 = values.map { 2 * $0 }
+}
+
+do {
+    // キャプチャ
+    // ちょっと理解に苦しみますね。使わないようにしよ
+    // 面白いけど。
+    func counter() -> () -> Int {
+        var count = 0
+        let closure = {
+            return ++count
+        }
+        return closure
+    }
+
+    let c = counter()
+    c()
+    c()
+}
+
+do {
+    // enum
+    enum ArithmeticOperation {
+        case Add
+        case Substract
+        case Multiply
+        case Divide
+    }
+    // enum with associate value
+    enum Diagram {
+        case Line(Double)
+        case Rectangle(Double, Double)
+        case Circle(Double)
+    }
+
+    func calculateArea(diagram: Diagram) -> Double {
+        let area: Double
+        switch diagram {
+        case .Line(_):
+            area = 0.0
+        case let .Rectangle(width, height):
+            area = width * height
+        case .Circle(let radius):
+            area = radius * radius * M_PI
+        }
+        return area
+    }
+    
+    calculateArea(.Circle(3.0))
+}
+
+do {
+    // struct
+    struct Body {
+        let height: Double
+        let mass: Double
+    }
+
+    let myBody = Body(height: 129.3, mass: 129.3)
+
+    func calculateBodyMassIndex(body: Body) -> Double {
+        let meterHeight = body.height / 100.0
+        return body.mass / (meterHeight * meterHeight)
+    }
+    
+    calculateBodyMassIndex(myBody)
+}
+// だいぶC言語残っているな。。。
+
+do {
+    // class
+    class Lot {
+        var remains: [String]
+
+        init(_ elements: String...) {
+            self.remains = elements
+        }
+
+        func choose() -> String? {
+            if remains.isEmpty {
+                return nil
+            }
+            let randomIndex = Int(arc4random_uniform(UInt32(remains.count)))
+            return remains.removeAtIndex(randomIndex)
+        }
+    }
+
+    func pickFromLot(lot: Lot, count: Int) -> [String] {
+        var result: [String] = []
+        // 警告ない例にしてほしいところ
+        for _ in (0..<count) {
+           lot.choose().map { result.append($0) }
+        }
+        return result
+    }
+    // new とかいらない
+    let lot = Lot("Swift", "Objective-C", "Java", "Scala", "Perl", "Ruby")
+    pickFromLot(lot, count: 3)
+    print(lot.remains)
+}
+
+do {
+    //ここで、二つのインスタンスが互いを参照し合うなどといった際に、永遠に参照カウントが0にならないということが起き得る。これを循環参照という。循環参照が起きるとメモリリークするので、一方を弱い参照（参照カウントに影響しない参照）にしてやる必要が出てくる。
+    class Dog {
+    }
+
+    weak var dog: Dog?
+    dog = Dog()
+}
+
+do {
+    // クロージャのweak
+    class Dog{}
+    let dog = Dog()
+    // キャプチャしている
+    let callDog = { [weak dog] (message: String) -> String in
+        return "\(dog!), \(message)."
+    }
+    
+    callDog("stay")
+}
+
+do {
+    // Computed Properties
+    // Computed プロパティでは他の情報から計算可能な値をプロパティとして提供できる。
+    struct Circle {
+        var radius: Double = 0.0
+
+        var area: Double {
+            get {
+                return radius * radius * M_PI
+            }
+            set (newArea) {
+                radius = newArea
+            }
+        }
+    }
+    var circle = Circle()
+    print(circle.radius)
+    circle.area = 1.0
+    print(circle.area)
+}
+
+do {
+    // Property Observers
+    // willSet や didSet ブロックを書くことで、プロパティの値の変化の前後に何らかの処理を行うことができる。
+    // つかわね。
+    struct Dam {
+        let limit = 100.0
+        var waterLevel = 0.0 {
+            willSet {
+                print("\(newValue - waterLevel) will change")
+            }
+            didSet {
+                if waterLevel > limit {
+                    print("Bursted")
+                    waterLevel = limit
+                }
+                print("\(waterLevel - oldValue) did change")
+            }
+        }
+    }
+    
+    var dam = Dam()
+    dam.waterLevel = 120
+}
+
+do {
+    class Printer {
+        var numberOfCopies = 1
+        // self
+        func put(string: String) {
+            for _ in (0..<self.numberOfCopies) {
+                print(string)
+            }
+        }
+    }
+
+    let printer = Printer()
+    printer.put("Word")
+}
+
+do {
+    struct StepCounter {
+        var count: Int = 0
+        // mutating
+        mutating func step() -> Void {
+            count++
+        }
+    }
+
+    var counter = StepCounter()
+    counter.step()
+    print(counter.count)
 }
 
 
