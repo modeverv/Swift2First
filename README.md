@@ -1,2 +1,2 @@
 # Swift2First
-Swiftの勉強です。
+Swiftの勉強です。
