@@ -435,7 +435,10 @@ do {
     printer.put("Word")
 }
 
+// 2015/10/20
 do {
+    // 値型では内部の状態を変更するようなメソッドには mutating キーワードを付ける必要がある。
+    // phpでいうところのstaticみたいなもの？
     struct StepCounter {
         var count: Int = 0
         // mutating
@@ -448,6 +451,424 @@ do {
     counter.step()
     print(counter.count)
 }
+
+do {
+    // self
+    class Printer {
+        var numberOfCopies = 1
+
+        func put(string: String) {
+            for _ in (0..<self.numberOfCopies) {
+                print(string)
+            }
+        }
+    }
+
+    let printer = Printer()
+    printer.put("Word")
+
+}
+
+do{
+    //enum の場合は self に直接代入することで状態を変更する。
+    enum ToggleSwitch {
+        case On
+        case Off
+
+        mutating func toggle() {
+            switch self {
+            case .On:
+                self = .Off
+            case .Off:
+                self = .On
+            }
+        }
+    }
+    var electricSwitch = ToggleSwitch.Off
+    electricSwitch.toggle()
+}
+
+do {
+    // Subscripts
+    // Array や Dictionary はスクエアブラケット（[]）によって要素にアクセスできる。
+    // subscript を実装することで任意の型について同様の機能を提供できる。
+    struct OddNumbers {
+        subscript(index: Int) -> Int {
+            return index * 2
+        }
+    }
+    
+    let odds = OddNumbers()
+    print(odds[3])
+}
+
+do {
+    // Inheritance
+    // class は継承することでサブクラスを作ることができる。class 名の右に : に続けてスーパークラスを指定する。
+    // サブクラスは継承元のスーパークラスの機能を利用できる。スーパークラスの実装を明示的に参照する場合は
+    // super キーワードを利用できる。
+    // メソッドをオーバーライドするときは override キーワードで修飾する必要がある。
+    // final キーワードを class や func に前置することで、継承やオーバーライドを制限できる。
+
+    class Animal {
+        func bark() {
+            print("hoge")
+        }
+    }
+
+    class Dog: Animal {
+        override func bark() {
+            super.bark()
+            print("Bark")
+        }
+    }
+    
+    let pochi: Animal = Dog()
+    pochi.bark()
+
+    class BaseClass {
+        var something : String
+        init(str: String){
+            self.something = str;
+        }
+        // Deinitializers
+        deinit {
+            print("Deinitialization")
+        }
+
+    }
+
+    class SomeClass : BaseClass {
+        override var something : String {
+            get {
+                return super.something
+            }
+            set {
+                let value = newValue // do something ...
+                super.something = value
+            }
+        }
+
+        func printSomething() -> Void {
+            print(self.something)
+        }
+    }
+    let some : BaseClass = SomeClass(str:"aa");
+    some.something = "bb"
+}
+
+do {
+    // Failable Initializers
+    // イニシャライザは与えられた引数によって初期化を失敗させることができる。
+    // イニシャライザを init? とすると、初期化を失敗させたいケースで nil を返すことができる。
+    // このようなイニシャライザは Optional を返したことになる。
+    struct Tweet {
+        let message: String
+
+        init?(message: String) {
+            guard message.characters.count <= 1 else {
+                return nil
+            }
+            self.message = message
+        }
+    }
+
+    if let tweet = Tweet(message: "Hello there") {
+        print(tweet.message)
+    }
+}
+
+do {
+    // Casting
+    // インスタンスの型を調べるためには is を使う。is は真偽値を返すので
+    // if some is SomeType {} のように使える。
+    // アップキャストするには as を使う。
+    // ダウンキャストするときは as! または as? を使う。
+    // as! はキャストに失敗するとランタイムエラーになる。as? は Optional を返し、キャストに失敗すると nil になる。
+    class Super {
+
+    }
+    class Inhe : Super {
+        func hoge() {
+            print("hoge")
+        }
+    }
+    let hoge :Super = Inhe()
+    if let inhe = hoge as? Inhe {
+        inhe.hoge()
+    }
+    // inhe.hoge() // ifがスコープ持ってくれてるぅ。
+}
+
+//do {
+    // Protocols
+    // protocol は、class や struct や enum が実装しなければならないインターフェースを規定する。
+    // 参照型や値型を特定のプロトコルに準拠させるためには、その protocol で定められたインターフェースを実装する必要がある。
+    protocol FileSystemItem {
+        var name: String { get }
+        var path: String { get }
+
+        init(directory: Directory, name: String)
+
+        func copy() -> Self
+    }
+
+    struct File: FileSystemItem {
+        var name: String {
+            //return split(path.characters){ (char) -> Bool in char == "/" }.last.map { String($0) } ?? ""
+            return "hoge"
+        }
+        let path: String
+
+        init(path: String) {
+            self.path = path
+        }
+
+        init(directory: Directory, name: String) {
+            self.init(path: directory.path + name)
+        }
+
+        func copy() -> File {
+            return File(path: path + " copy")
+        }
+    }
+
+    struct Directory: FileSystemItem {
+        var name: String {
+            //return split(path.characters){ (char) -> Bool in char == "/" }.last.map { String($0) } ?? ""
+            return "hoge"
+        }
+        let path: String
+
+        init(path: String) {
+            self.path = path
+        }
+
+        init(directory: Directory, name: String) {
+            self.init(path: directory.path + name + "/")
+        }
+
+        func copy() -> Directory {
+            return Directory(path: path[path.startIndex..<(path.endIndex.predecessor())] + " copy/")
+        }
+    }
+    
+    let bin = Directory(path: "/usr/bin/")
+    let swift = File(directory: bin, name: "swift")
+//}
+
+
+    // Extensions
+    // extension を用いることで既存の型に機能を追加することができる。
+    // 追加できるのは computed プロパティやメソッド、イニシャライザや subscript である。
+    // stored プロパティを増やすことはできない。
+
+    extension String {
+        var isHiragana2: Bool {
+            return unicodeScalars.reduce(!isEmpty) { (result, unicode) -> Bool in
+                return result && 0x3040 <= unicode.value && unicode.value < 0x30A0
+            }
+        }
+    }
+    
+    print("こんにちは".isHiragana2)
+
+// Protocol Extensions
+// extension は protocol も拡張できる。
+// protocol CollectionType を拡張している。また where 節によって条件を指定することができ、
+// この場合は CollectionType の個々の要素が protocol に適合しているか確認している。
+protocol Hiraganable {
+    var isHiragana: Bool { get }
+}
+
+extension String: Hiraganable {
+    var isHiragana: Bool {
+        return unicodeScalars.reduce(!isEmpty) { (result, unicode) -> Bool in
+            return result && 0x3040 <= unicode.value && unicode.value < 0x30A0
+        }
+    }
+}
+
+extension CollectionType where Generator.Element : Hiraganable {
+    var isHiragana: Bool {
+        return reduce(!isEmpty) { (result, string) -> Bool in
+            return result && string.isHiragana
+        }
+    }
+}
+
+["あいうえお", "かきくけこ"].isHiragana
+
+// Error handling
+// Swift にはエラー処理のための特別な機構が用意されている。
+// エラーは protocol ErrorType に適合する型の値として表される。必要に応じて付加的な情報を与えることもできる。
+// ハンドリングされるべき問題が起きた場合は定義されたエラーを throw する。
+// エラーを throw する関数には、その宣言に throws キーワードを付加する必要がある。
+// throws で宣言された関数を呼び出す場合には必ず try を前置する。
+// 実際にはエラーが発生しないことがわかっている場合には try! と書くことで、
+// エラーをハンドリングしないことを明示できる。ただし try! としているにも関わらずエラーが発生
+// した場合はランタイムエラーとなる。またエラーが起きたとしても単に無視したい場合には
+// try? と書くことができ、返り値がある場合は Optional になる。
+// エラーが起きてもなにも起こらず、返り値は nil になる。
+enum NetworkError: ErrorType {
+    case Unreachable
+    case UnexpectedStatusCode(Int)
+}
+
+func getResourceFromNetwork() throws -> String {
+    let URL = "http://www.hatena.ne.jp/"
+    if !checkConnection(URL) {
+        throw NetworkError.Unreachable
+    }
+    let (statusCode, response) = connectHTTP(URL, method: "GET")
+    if case (200..<300) = statusCode {
+        return response
+    } else {
+        throw NetworkError.UnexpectedStatusCode(statusCode)
+    }
+}
+
+func checkConnection(url:String) -> Bool {
+    return false
+}
+func connectHTTP(url:String,method:String) -> (Int,String) {
+    return (200,"aaaa")
+}
+
+do {
+    let res = try getResourceFromNetwork()
+    print(res)
+} catch NetworkError.Unreachable {
+    print("Unreachable")
+} catch NetworkError.UnexpectedStatusCode(let statusCode) {
+    print("Unexpected status code \(statusCode)")
+} catch {
+    print("Unknown problem")
+}
+
+// Generics
+// 特定の型とは紐付かない一般的な API を提供したい場合に、ジェネリクスの機能が使える。
+
+class LotInt {
+    var remains: [Int]
+
+    init(_ elements: Int...) {
+        self.remains = elements
+    }
+
+    func choose() -> Int? {
+        if remains.isEmpty {
+            return nil
+        }
+        let randomIndex = Int(arc4random_uniform(UInt32(remains.count)))
+        return remains.removeAtIndex(randomIndex)
+    }
+}
+
+class LotString {
+    var remains: [String]
+
+    init(_ elements: String...) {
+        self.remains = elements
+    }
+
+    func choose() -> String? {
+        if remains.isEmpty {
+            return nil
+        }
+        let randomIndex = Int(arc4random_uniform(UInt32(remains.count)))
+        return remains.removeAtIndex(randomIndex)
+    }
+}
+// => 
+// Swift ではジェネリクスを用いて、上記のように記述できる。<Element> のように型パラメータを定義し、
+// それぞれ関連する部分をこれで置き換えている。上例のような利用時には Element は String に特殊化される。
+// 初期化時に ConsumptionLot<String>("A", "B", "C") と書くこともできるが、
+// 今回は引数の型から型推論できるので省略されている。
+class ConsumptionLot<T> {
+    var remains: [T]
+
+    required init(_ items: T...) {
+        self.remains = items
+    }
+
+    func choose() -> T? {
+        if remains.isEmpty {
+            return nil
+        }
+        let randomIndex = Int(arc4random_uniform(UInt32(remains.count)))
+        return remains.removeAtIndex(randomIndex)
+    }
+}
+
+let lot = ConsumptionLot("A", "B", "C")
+if let hoge = lot.choose() {
+    print(hoge);
+}
+// 型パラメータは class などの型と共に宣言することもできるが、
+// 関数と共に宣言することもできる。その場合は func someFunction<T>() となる。
+
+// Associated types and type constraints
+// protocol には関連する型を定義する機能がある。以下の例のように typealias ItemType などと
+// してこれを宣言し、これに準拠する側では typealias ItemType = Item として型を指定する。
+//->とばした
+
+/// Access control
+
+// Swift にはアクセスコントロールのための3つのスコープがある。
+// public は完全に公開され、どこからでもアクセスできる。
+// internal はモジュール内部からだけアクセスできる。
+// private はそのファイル内からだけアクセスできる。
+// デフォルトは internal である。
+// Swift によるアプリケーションは、モジュールという可視性の単位を持つ。
+// Framework や アプリケーションそのものがモジュールを成す。
+// Framework はライブラリを作成する際の単位となる。
+// 外部のモジュールの機能を利用する場合はモジュールの名前を使って import SomeModule と書く。
+// Swift によるもう一つの可視性の単位はファイルである。異なる class などであっても、同一ファイル内であれば同じ単位である。
+// import 時に import SomeModule を @testable import SomeModule と書けるようになり、
+// internal にもアクセスできる。ただしビルド時の設定で Enable Testability を有効にする必要があり、
+// また最適化などが行われないようにデバッグ設定にする必要がある。
+// Swiftの名前空間は、JavaのパッケージやPHPのnamespaceのように明示的に指定する方法ではなく、
+// 暗黙的に定義されています。Pythonも同じような感じで、暗黙的に定義されるらしいです。
+// 名前空間は、Xcode targetごと（モジュールと呼ぶのが正しいのでしょうか）に定義されるというか、
+// モジュール名がそのまま名前空間になっています。 
+// 自分もモジュールとか理解が浅いのですが、簡単に言えばProjectを作成するときのProduct Nameが名前空間になります。
+// ref : http://tsuchikazu.net/swift_namespace/
+
+do {
+    // Availability
+    // 実行されるプラットフォームやバージョンによって利用できない関数などを表すために
+    // @available 属性が利用できる。
+    // @available(iOS 8.0, OSX 10.10, *) などとすることで、
+    // 利用できるプラットフォームやバージョンを示すことができる。
+    // プラットフォームの名前は現在のところ iOS iOSApplicationExtension OSX OSXApplicationExtension watchOS がある。
+    // 最後の * は将来において登場する可能性のある新たなプラットフォームへの対応を示す。
+    // このほか unavailable や introduced= deprecated= obsoleted= message= renamed= 
+    // といった付加的な情報を括弧の中に加えることができる。
+    /// これを利用して if #available() {} のように、プラットフォームやバージョンに応じた分岐を書くことができる。
+
+    @available(iOS 9.0, *)
+    func someFunction() {
+        print("iOS 9 or later")
+    }
+    
+    if #available(iOS 9.0, *) {
+        someFunction()
+    }
+}
+do {
+    // continue を用いて次のループの実行に移ることができる。また break を用いてループの実行をすべて終えることができる。
+
+}
+
+// swift入門した。言語仕様はかなり大きめでちょっと独特という印象
+// ArrayとかDictionary、SQLiteの使い方がわからないとダメなのだが、
+// このURLでは網羅的には説明してくれていない印象
+// 本家のAPIを眺める方法があるが、かなり長い道のりになりそう。
+// そんなことはしていられない。Scalaも次に待っているので。
+// Hatena-iOSアプリのあとは 10Hぐらいかかる？
+// Swift１時代の本でも眺めてやってみるか。50Hぐらい？かかる？
+// ArrayとかのAPI周りはそんなに変わっていない印象
 
 
 /*
@@ -500,7 +921,31 @@ var dogs: Array<String> = [] // こちらでも良さそう
 dogs.append("aa");
 dogs.append("bb");
 for dog in dogs {
-    print(dog)
+Extensions
+
+extension を用いることで既存の型に機能を追加することができる。追加できるのは computed プロパティやメソッド、イニシャライザや subscript である。stored プロパティを増やすことはできない。
+
+extension String {
+var isHiragana: Bool {
+return unicodeScalars.reduce(!isEmpty) { (result, unicode) -> Bool in
+return result && 0x3040 <= unicode.value && unicode.value < 0x30A0
+}
+}
+}
+
+"こんにちは".isHiraganaExtensions
+
+extension を用いることで既存の型に機能を追加することができる。追加できるのは computed プロパティやメソッド、イニシャライザや subscript である。stored プロパティを増やすことはできない。
+
+extension String {
+var isHiragana: Bool {
+return unicodeScalars.reduce(!isEmpty) { (result, unicode) -> Bool in
+return result && 0x3040 <= unicode.value && unicode.value < 0x30A0
+}
+}
+}
+
+"こんにちは".isHiragana   print(dog)
 }
 
 /* Set */
